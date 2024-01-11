@@ -7,6 +7,7 @@
       2023-11-04 - Drew Sloan - Library first created.
 
 */
+#include <stdint.h>
 
 #ifndef DRV8461_REGISTERS_H
 #define DRV8461_REGISTERS_H
@@ -17,15 +18,21 @@ enum DRV8461_REG_ADDR : uint8_t {
   DRV8461_REG_FAULT = 0x00,            // Fault status register.
   DRV8461_REG_DIAG1 = 0x01,            // DIAG status 1.
   DRV8461_REG_DIAG2 = 0x02,            // DIAG status 2.
-  DRV8461_REG_CTRL1 = 0x03,            // Control register 1.
-  DRV8461_REG_CTRL2 = 0x04,            // Control register 2.DRV8461_FAULT
-  DRV8461_REG_CTRL3 = 0x05,            // Control register 3.
-  DRV8461_REG_CTRL4 = 0x06,            // Control register 4.
-  DRV8461_REG_CTRL5 = 0x07,            // Control register 5.
-  DRV8461_REG_CTRL6 = 0x08,            // Control register 6.
-  DRV8461_REG_CTRL7 = 0x09,            // Control register 7.
-  DRV8461_REG_CTRL8 = 0x0A,            // Control register 8.
-  DRV8461_REG_CTRL9 = 0x0B,            // Control register 9.
+  DRV8461_REG_DIAG3 = 0x03,            // DIAG status 3.
+  DRV8461_REG_CTRL1 = 0x04,            // Control register 1.
+  DRV8461_REG_CTRL2 = 0x05,            // Control register 2.
+  DRV8461_REG_CTRL3 = 0x06,            // Control register 3.
+  DRV8461_REG_CTRL4 = 0x07,            // Control register 4.
+  DRV8461_REG_CTRL5 = 0x08,            // Control register 5.
+  DRV8461_REG_CTRL6 = 0x09,            // Control register 6.
+  DRV8461_REG_CTRL7 = 0x0A,            // Control register 7.
+  DRV8461_REG_CTRL8 = 0x0B,            // Control register 8.
+  DRV8461_REG_CTRL9 = 0x0C,            // Control register 9.
+  DRV8461_REG_CTRL10 = 0x0D,            // Control Register 10.
+  DRV8461_REG_CTRL11 = 0x0E,            // Control Register 11.
+  DRV8461_REG_CTRL12 = 0x0F,            // Control Register 12.
+  DRV8461_REG_CTRL13 = 0x10,            // Control Register 13.
+  DRV8461_REG_CTRL14 = 0x3C,            // Control Register 14.
 };
 
 
@@ -88,14 +95,14 @@ enum DRV8461_PWM_TOFF : uint8_t {
 };
 
 enum DRV8461_Decay_Mode : uint8_t {
-  DRV8434_DECAY_SLOW_SLOW     = 0b000,  // Increasing SLOW, decreasing SLOW.
-  DRV8434_DECAY_SLOW_MIX30    = 0b001,  // Increasing SLOW, decreasing MIXED 30%.
-  DRV8434_DECAY_SLOW_MIX60    = 0b010,  // Increasing SLOW, decreasing MIXED 60%.
-  DRV8434_DECAY_SLOW_FAST     = 0b011,  // Increasing SLOW, decreasing FAST.
-  DRV8434_DECAY_MIX30_MIX30   = 0b100,  // Increasing MIXED 30%, decreasing MIXED 30%.
-  DRV8434_DECAY_MIX60_MIX60   = 0b101,  // Increasing MIXED 60%, decreasing MIXED 60%.
-  DRV8434_DECAY_DYNAMIC       = 0b110,  // Smart tune Dynamic Decay.
-  DRV8434_DECAY_SMART_RIPPLE  = 0b111,  // Smart tune Ripple Control (default).
+  DRV8461_DECAY_SLOW_SLOW     = 0b000,  // Increasing SLOW, decreasing SLOW.
+  DRV8461_DECAY_SLOW_MIX30    = 0b001,  // Increasing SLOW, decreasing MIXED 30%.
+  DRV8461_DECAY_SLOW_MIX60    = 0b010,  // Increasing SLOW, decreasing MIXED 60%.
+  DRV8461_DECAY_SLOW_FAST     = 0b011,  // Increasing SLOW, decreasing FAST.
+  DRV8461_DECAY_MIX30_MIX30   = 0b100,  // Increasing MIXED 30%, decreasing MIXED 30%.
+  DRV8461_DECAY_MIX60_MIX60   = 0b101,  // Increasing MIXED 60%, decreasing MIXED 60%.
+  DRV8461_DECAY_DYNAMIC       = 0b110,  // Smart tune Dynamic Decay.
+  DRV8461_DECAY_SMART_RIPPLE  = 0b111,  // Smart tune Ripple Control (default).
 };
 
 
