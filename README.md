@@ -1,3 +1,3 @@
-# Vulintus_DRV8434S_Library
+# DRV8461_Library
 
-Vulintus' Arduino library for the Texas Instruments DRV8434S stepper driver.
+Vulintus' Arduino library for the Texas Instruments DRV8461 stepper driver.

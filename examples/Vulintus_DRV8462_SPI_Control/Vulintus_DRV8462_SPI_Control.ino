@@ -1,35 +1,33 @@
-/*  Vulintus_DRV8434S_Pin_Control.ino
+/*  Vulintus_DRV8461_SPI_Control.ino
 
     copyright Vulintus, Inc., 2023
 
-    Hardware pin-controlled stepping example for the Vulintus DRV8434S stepper 
-    driver library.
+    SPI-controlled stepping example for the Vulintus DRV8461 stepper driver
+    library.
 
     UPDATE LOG:
-      2023-11-06 - Drew Sloan - Example first created.
+      2023-11-05 - Drew Sloan - Example first created.
 
 */
 
 
 // Included libraries. //
-#include <Vulintus_DRV8434S.h>          // Vulintus DRV8434S library.
+#include <Vulintus_DRV8461.h>          // Vulintus DRV8461 library.
 
 // Serial communication constants. //
 #define SERIAL_BAUD_RATE  115200        //Serial baud rate.
 
 //Pin definitions.
-#define PIN_DRV_EN          5
 #define PIN_DRV_SLP         4
-#define PIN_DRV_DIR         6
 #define PIN_DRV_STEP        7
 #define PIN_DRV_CS          8
 #define PIN_DRV_FLT         3
 
 // Stepper driver. //
-// Vulintus_DRV8434S stepper = Vulintus_DRV8434S(&SPI, PIN_DRV_CS);             // << Call this if SLP is externally pulled up.
-Vulintus_DRV8434S stepper = Vulintus_DRV8434S(&SPI, PIN_DRV_CS, PIN_DRV_SLP);   // << Call this if SLP is NOT externally pulled up.
+// Vulintus_DRV8461 stepper = Vulintus_DRV8461(&SPI, PIN_DRV_CS);             // << Call this if SLP is externally pulled up.
+Vulintus_DRV8461 stepper = Vulintus_DRV8461(&SPI, PIN_DRV_CS, PIN_DRV_SLP);   // << Call this if SLP is NOT externally pulled up.
 const uint16_t start_step_period = 750;     //Starting step period, in microseconds.
-const uint16_t min_step_period = 500;       //Minimum step period (at max. speed), in microseconds.
+const uint16_t min_step_period = 150;       //Minimum step period (at max. speed), in microseconds.
 uint16_t cur_step_period;                   //Current step period, decreases as speed ramps up.
 const uint16_t num_steps = 6500;            //Number of steps/microsteps to move.
 bool dir;                                   //Boolean for flipping the direction.
@@ -47,17 +45,12 @@ void setup() {
   Print_FW_Time(); 
   Serial.println();
 
-  //Initialize the DRV8434S (Starts SPI and resets all registers).
+  //Initialize the DRV8461 (Starts SPI and resets all registers).
   stepper.begin();
-
-  //Set the enable, step, and direction pins.
-  stepper.set_enable_pin(PIN_DRV_EN);
-  stepper.set_dir_pin(PIN_DRV_DIR);
-  stepper.set_step_pin(PIN_DRV_STEP);
 
   //Set the output current.
   stepper.set_current_max(1000);        //Maximum possible current based on the maximum voltage on the VREF pin (Imax = VREF / 1.32 V/A).
-  stepper.set_current(500);             //Target output current.
+  stepper.set_current(400);             //Target output current.
 
   //Check the actual output current after setting the 4-bt TRQ_DAC.
   Serial.print("stepper.actual_current = ");

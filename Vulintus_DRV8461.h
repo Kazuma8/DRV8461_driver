@@ -1,6 +1,6 @@
-/*  Vulintus_DRV8434S.h - copyright Vulintus, Inc., 2023
+/*  Vulintus_DRV8461.h - copyright Vulintus, Inc., 2023
 
-    Vulintus STMicroelectronics DRV8434S eCompass module library.
+    Vulintus STMicroelectronics DRV8461 eCompass module library.
 
     UPDATE LOG:
       2023-11-05 - Drew Sloan - Library first created.
@@ -8,34 +8,34 @@
 */
 
 
-#ifndef VULINTUS_DRV8434S_H
-#define VULINTUS_DRV8434S_H
+#ifndef VULINTUS_DRV8461_H
+#define VULINTUS_DRV8461_H
 
 #include <Arduino.h>						// Arduino main include file.
 #include <SPI.h>							// Standard Arduino SPI library.
 
 #include <Vulintus_Stepper_Driver.h>		// Vulintus wrapper library of common stepper functions.
-#include <DRV8434S_Registers.h>				// DRV8434S register addresses and settings.
+#include <DRV8461_Registers.h>				// DRV8461 register addresses and settings.
 
 
-#define DRV8434S_SPI_SPEED	10000000		// SPI clock speed, in Hz.
+#define DRV8461_SPI_SPEED	10000000		// SPI clock speed, in Hz.
 
 
 //CLASSES ******************************************************************************************************//
-class Vulintus_DRV8434S : public Vulintus_Stepper_Driver {
+class Vulintus_DRV8461 : public Vulintus_Stepper_Driver {
 
 	public:
 	
 		// Error codes. //
-		enum DRV8434S_errors : uint8_t {
-			DRV8434S_NO_ERROR = 0,        		// Code to return indicating no error.
-			DRV8434S_ERR_NO_FLT_PIN = 1,        // Fault pin is not set, can't monitor faults.
-			DRV8434S_ERR_NO_SLP_PIN = 2,        // Sleep pin is not set, can't set sleep mode.
+		enum DRV8461_errors : uint8_t {
+			DRV8461_NO_ERROR = 0,        		// Code to return indicating no error.
+			DRV8461_ERR_NO_FLT_PIN = 1,        // Fault pin is not set, can't monitor faults.
+			DRV8461_ERR_NO_SLP_PIN = 2,        // Sleep pin is not set, can't set sleep mode.
 		};
 		
 		// Constructors. //
-		Vulintus_DRV8434S(SPIClass *spi_bus, uint8_t pin_cs);		// SPI with chip-select.
-		Vulintus_DRV8434S(SPIClass *spi_bus, uint8_t pin_cs, uint8_t pin_slp);		// SPI with chip-select and sleep input.
+		Vulintus_DRV8461(SPIClass *spi_bus, uint8_t pin_cs);		// SPI with chip-select.
+		Vulintus_DRV8461(SPIClass *spi_bus, uint8_t pin_cs, uint8_t pin_slp);		// SPI with chip-select and sleep input.
 
 		// Variables. //
 		volatile uint8_t fault;						// Fault code, used in interrupts.
@@ -60,12 +60,12 @@ class Vulintus_DRV8434S : public Vulintus_Stepper_Driver {
 
 		void set_open_load_fault_latch(bool enable);		// Enable/disable open load fault latching (default on).
 		void set_open_load_detection(bool enable);			// Enable/disable open load detection (default off).
-		void set_pwm_toff(DRV8434S_PWM_TOFF toff);			// Set the PWM OFF time (default 16 us).
-		void set_decay_mode(DRV8434S_Decay_Mode mode);		// Set the decay mode (default is smart tune ripple control).
+		void set_pwm_toff(DRV8461_PWM_TOFF toff);			// Set the PWM OFF time (default 16 us).
+		void set_decay_mode(DRV8461_Decay_Mode mode);		// Set the decay mode (default is smart tune ripple control).
 		void set_overcurrent_fault_latch(bool enable);		// Enable/disable overcurrent fault latching (default on).
 		void set_overtemperature_fault_latch(bool enable);	// Enable/disable overtemperature fault latching (default latching).
 		void set_temperature_fault(bool enable);			// Enable/disable reporting of over/under temperature warnings on nFAULT (default off).
-		void set_ripple_current(DRV8434S_RC_Ripple ripple);	// Set the ripple current (default is 19mA + 1% of I_trip).
+		void set_ripple_current(DRV8461_RC_Ripple ripple);	// Set the ripple current (default is 19mA + 1% of I_trip).
 		void set_spread_spectrum(bool enable);				// Enable/disable spread-spectrum (default on).
 
 		void set_torque_scaling(bool enable);		// Enable/disable 8x torque count scaling (default off).
@@ -85,7 +85,7 @@ class Vulintus_DRV8434S : public Vulintus_Stepper_Driver {
 		void set_step_pin(uint8_t pin_step);				// Set the step	pin (disables SPI stepping).
 		void use_SPI_step(bool enable);						// Use SPI for stepping (default off).
 		void step(void);									// Trigger one step.
-		void set_microsteps(DRV8434S_Micostep_Mode mode);	// Set the microstep setting.
+		void set_microsteps(DRV8461_Micostep_Mode mode);	// Set the microstep setting.
 
 		void set_enable_pin(uint8_t pin_en);		// Set the enable pin (disables SPI enable).
 		void use_SPI_enable(bool enable);			// Use SPI for enabling/disabling (default on).
@@ -129,4 +129,4 @@ class Vulintus_DRV8434S : public Vulintus_Stepper_Driver {
 
 };
 
-#endif 									//#ifndef VULINTUS_DRV8434S_H
+#endif 									//#ifndef VULINTUS_DRV8461_H
