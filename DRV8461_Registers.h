@@ -64,6 +64,7 @@ enum DRV8461_DIAG1_Reg_Val : uint8_t {
 
 // DIAG STATUS 2 REGISTER SETINGS ************************************************************************************// 
 enum DRV8461_DIAG2_Reg_Val : uint8_t {
+  DRV8461_DIAG2_STSL = 0x80            // Indicates operating in standstill power saving mode
   DRV8461_DIAG2_OTW = 0x40,            // Indicates overtemperature warning.
   DRV8461_DIAG2_OTS = 0x20,            // Indicates overtemperature shutdown.
   DRV8461_DIAG2_STL_LRN_OK = 0x10,     // Indicates stall detection learning is successful.
@@ -73,26 +74,33 @@ enum DRV8461_DIAG2_Reg_Val : uint8_t {
 };
 
 
-// CONTROL 1 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL1_Reg_Val : uint8_t {
-  DRV8461_CTRL1_TRQ_DAC = 0xF0,         // ??? (default is 0000b = 100%).
-  DRV8461_CTRL1_OL_MODE = 0x02,         // Open-load fault clearing mode.
+// DIAG STATUS 3 REGISTER SETINGS ************************************************************************************// 
+enum DRV8461_DIAG3_Reg_Val : uint8_t {
+  DRV8461_DIAG3_NHOME = 0x40,          // Indicates indexer is at a position other than home.
+  DRV8461_DIAG3_CNT_OFLW = 0x20,       // Indicates ATQ_CNT is more than ATQ_UL.
+  DRV8461_DIAG3_CNT_UFLW = 0x10,       // Indicates ATQ_CNT is less than ATQ_LL.
+  DRV8461_DIAG3_NPOR = 0x02,           // Low indicates a prior VCC UVLO event, High indicates that NPOR has been cleared by CLR_FLT or nSLEEP after a VCC UVLO.
 };
 
 
-// CONTROL 2 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL2_Reg_Val : uint8_t {
-  DRV8461_CTRL2_EN_OUT = 0x80,         // Write '0' to disable all outputs.
-  DRV8461_CTRL2_TOFF = 0x18,           // ??? (default is 01b = 16 us).
+// CONTROL 1 REGISTER SETINGS ************************************************************************************// 
+enum DRV8461_CTRL1_Reg_Val : uint8_t {
+  DRV8461_CTRL1_EN_OUT = 0x80,         // Indicates all outputs enabled.
+  DRV8461_CTRL1_SR = 0x40,             // 0 = Output Rise/Fall time = 140ns, 1 = 70ns.
+  DRV8461_CTRL1_IDX_RST = 0x20,        // Resets the indexer to 45˚ electrical angle, but keeps contents of registers.
+  DRV8461_CTRL1_TOFF = 0x18,           // ??? (default is 01b = 19 us).
   DRV8461_CTRL2_DECAY = 0x07,          // ??? (default is 111b = Smart tune Ripple Control).
 };
 
+
+// Specific values for TOFF
 enum DRV8461_PWM_TOFF : uint8_t {
-  DRV8461_TOFF_7US   = 0b00,           // 7 μs.
-  DRV8461_TOFF_16US  = 0b01,           // 16 us.
-  DRV8461_TOFF_24US  = 0b10,           // 24 us.
-  DRV8461_TOFF_32US  = 0b11,           // 32 us.
+  DRV8461_TOFF_9_5US   = 0b00,         // 9.5 μs.
+  DRV8461_TOFF_19US  = 0b01,           // 19 us.
+  DRV8461_TOFF_27US  = 0b10,           // 27 us.
+  DRV8461_TOFF_35US  = 0b11,           // 35 us.
 };
+
 
 enum DRV8461_Decay_Mode : uint8_t {
   DRV8461_DECAY_SLOW_SLOW     = 0b000,  // Increasing SLOW, decreasing SLOW.
@@ -103,6 +111,14 @@ enum DRV8461_Decay_Mode : uint8_t {
   DRV8461_DECAY_MIX60_MIX60   = 0b101,  // Increasing MIXED 60%, decreasing MIXED 60%.
   DRV8461_DECAY_DYNAMIC       = 0b110,  // Smart tune Dynamic Decay.
   DRV8461_DECAY_SMART_RIPPLE  = 0b111,  // Smart tune Ripple Control (default).
+};
+
+
+// CONTROL 2 REGISTER SETINGS ************************************************************************************// 
+enum DRV8461_CTRL2_Reg_Val : uint8_t {
+  DRV8461_CTRL2_EN_OUT = 0x80,         // Write '0' to disable all outputs.
+  
+  
 };
 
 
