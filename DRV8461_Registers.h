@@ -7,14 +7,18 @@
       2023-11-04 - Drew Sloan - Library first created.
 
 */
+#pragma once
+
 #include <stdint.h>
+#include <Arduino.h>
+#include <SPI.h>
 
 #ifndef DRV8461_REGISTERS_H
 #define DRV8461_REGISTERS_H
 
 
 // REGISTER ADDRESSES ************************************************************************************************// 
-enum DRV8461_REG_ADDR : uint8_t {
+enum class DRV8461_REG_ADDR : uint8_t {
   DRV8461_REG_FAULT        = 0x00,            // Fault status register.
   DRV8461_REG_DIAG1        = 0x01,            // DIAG status 1.
   DRV8461_REG_DIAG2        = 0x02,            // DIAG status 2.
@@ -72,9 +76,107 @@ enum DRV8461_REG_ADDR : uint8_t {
   DRV8461_REG_CTRL14       = 0x3C,            // Control Register 14.
 };
 
+///FROM POLOLU FILE
 
+/// This class provides low-level functions for reading and writing from the SPI
+/// interface of a DRV8434S stepper motor controller IC.
+///
+/// Most users should use the HighPowerStepperDriver class, which provides a
+/// higher-level interface, instead of this class.
+class DRV8434SSPI
+{
+public:
+  /// Configures this object to use the specified pin as a chip select pin.
+  ///
+  /// You must use a chip select pin; the DRV8434S requires it.
+  void setChipSelectPin(uint8_t pin)
+  {
+    csPin = pin;
+    pinMode(csPin, OUTPUT);
+    digitalWrite(csPin, HIGH);
+  }
+
+  /// Reads the register at the given address and returns its raw value.
+  uint8_t readReg(uint8_t address)
+  {
+    // Arduino out / DRV8434 in: First byte contains read/write bit and register
+    // address; second byte is unused.
+    // Arduino in / DRV8434 out: First byte contains status; second byte
+    // contains data in register being read.
+
+    selectChip();
+    lastStatus = transfer((0x20 | (address & 0b11111)) << 1);
+    uint8_t data = transfer(0);
+    deselectChip();
+    return data;
+  }
+
+  /// Reads the register at the given address and returns its raw value.
+  uint16_t readReg(DRV8461_REG_ADDR address)
+  {
+    return readReg((uint8_t)address);
+  }
+
+  /// Writes the specified value to a register.
+  uint8_t writeReg(uint8_t address, uint8_t value)
+  {
+    // Arduino out / DRV8434 in: First byte contains read/write bit and register
+    // address; second byte contains data to write to register.
+    // Arduino in / DRV8434 out: First byte contains status; second byte
+    // contains old (existing) data in register being written to.
+
+    selectChip();
+    lastStatus = transfer((address & 0b11111) << 1);
+    uint8_t oldData = transfer(value);
+    // The CS line must go low after writing for the value to actually take
+    // effect.
+    deselectChip();
+    return oldData;
+  }
+
+  /// Writes the specified value to a register.
+  void writeReg(DRV8461_REG_ADDR address, uint8_t value)
+  {
+    writeReg((uint8_t)address, value);
+  }
+
+private:
+
+  SPISettings settings = SPISettings(500000, MSBFIRST, SPI_MODE1);
+
+  uint8_t transfer(uint8_t value)
+  {
+    return SPI.transfer(value);
+  }
+
+  void selectChip()
+  {
+    digitalWrite(csPin, LOW);
+    SPI.beginTransaction(settings);
+  }
+
+  void deselectChip()
+  {
+   SPI.endTransaction();
+   digitalWrite(csPin, HIGH);
+  }
+
+  uint8_t csPin;
+
+public:
+
+  /// The status reported by the driver during the last read or write.  This
+  /// status is the same as that which would be returned by reading the FAULT
+  /// register with DRV8434S::readFault(), except the upper two bits are always
+  /// 1.
+  uint8_t lastStatus = 0;
+};
+
+
+
+///FAULT
 // FAULT REGISTER SETINGS ********************************************************************************************// 
-enum DRV8461_FAULT_Reg_Val : uint8_t {
+enum class DRV8461_FAULT_Reg_Val : uint8_t {
   DRV8461_FAULT_FAULT = 0x80,          // Fault bit is high when nFAULT output is low.
   DRV8461_FAULT_SPI_ERR = 0x40,        // Indicates SPI protocol errors.
   DRV8461_FAULT_UVLO = 0x20,           // Indicates undervoltage lockout fault condition.
@@ -86,8 +188,10 @@ enum DRV8461_FAULT_Reg_Val : uint8_t {
 };
 
 
+
+///DIAG
 // DIAG STATUS 1 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_DIAG1_Reg_Val : uint8_t {
+enum class DRV8461_DIAG1_Reg_Val : uint8_t {
   DRV8461_DIAG1_OCP_LS2_B = 0x80,      // Indicates overcurrent fault on the low-side FET of half bridge 2 in BOUT.
   DRV8461_DIAG1_OCP_HS2_B = 0x40,      // Indicates overcurrent fault on the high-side FET of half bridge 2 in BOUT.
   DRV8461_DIAG1_OCP_LS1_B = 0x20,      // Indicates overcurrent fault on the low-side FET of half bridge 1 in BOUT.
@@ -100,7 +204,7 @@ enum DRV8461_DIAG1_Reg_Val : uint8_t {
 
 
 // DIAG STATUS 2 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_DIAG2_Reg_Val : uint8_t {
+enum class DRV8461_DIAG2_Reg_Val : uint8_t {
   DRV8461_DIAG2_STSL = 0x80,           // Indicates operating in standstill power saving mode
   DRV8461_DIAG2_OTW = 0x40,            // Indicates overtemperature warning.
   DRV8461_DIAG2_OTS = 0x20,            // Indicates overtemperature shutdown.
@@ -112,7 +216,7 @@ enum DRV8461_DIAG2_Reg_Val : uint8_t {
 
 
 // DIAG STATUS 3 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_DIAG3_Reg_Val : uint8_t {
+enum class DRV8461_DIAG3_Reg_Val : uint8_t {
   DRV8461_DIAG3_NHOME = 0x40,          // Indicates indexer is at a position other than home.
   DRV8461_DIAG3_CNT_OFLW = 0x20,       // Indicates ATQ_CNT is more than ATQ_UL.
   DRV8461_DIAG3_CNT_UFLW = 0x10,       // Indicates ATQ_CNT is less than ATQ_LL.
@@ -120,8 +224,10 @@ enum DRV8461_DIAG3_Reg_Val : uint8_t {
 };
 
 
+
+//CONTROL
 // CONTROL 1 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL1_Reg_Val : uint8_t {
+enum class DRV8461_CTRL1_Reg_Val : uint8_t {
   DRV8461_CTRL1_EN_OUT  = 0x80,        // Write '0' to disable all outputs.
   DRV8461_CTRL1_SR      = 0x40,        // 0 = Output Rise/Fall time = 140ns, 1 = 70ns.
   DRV8461_CTRL1_IDX_RST = 0x20,        // Resets the indexer to 45˚ electrical angle, but keeps contents of registers.
@@ -129,17 +235,16 @@ enum DRV8461_CTRL1_Reg_Val : uint8_t {
   DRV8461_CTRL2_DECAY   = 0x07,        // ??? (default is 111b = Smart tune Ripple Control).
 };
 
-
 // Specific values for TOFF
-enum DRV8461_PWM_TOFF : uint8_t {
+enum class DRV8461_PWM_TOFF : uint8_t {
   DRV8461_TOFF_9_5US = 0b00,           // 9.5 μs.
   DRV8461_TOFF_19US  = 0b01,           // 19 us.
   DRV8461_TOFF_27US  = 0b10,           // 27 us.
   DRV8461_TOFF_35US  = 0b11,           // 35 us.
 };
 
-
-enum DRV8461_Decay_Mode : uint8_t {
+//Specitic Values for Decay Mode
+enum class DRV8461_Decay_Mode : uint8_t {
   DRV8461_DECAY_SLOW_SLOW     = 0b000,  // Increasing SLOW, decreasing SLOW.
   DRV8461_DECAY_SLOW_MIX30    = 0b001,  // Increasing SLOW, decreasing MIXED 30%.
   DRV8461_DECAY_SLOW_MIX60    = 0b010,  // Increasing SLOW, decreasing MIXED 60%.
@@ -152,7 +257,7 @@ enum DRV8461_Decay_Mode : uint8_t {
 
 
 // CONTROL 2 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL2_Reg_Val : uint8_t {
+enum class DRV8461_CTRL2_Reg_Val : uint8_t {
   DRV8461_CTRL2_DIR = 0x80,            // Direction input (when SPI_DIR = 1).
   DRV8461_CTRL2_STEP = 0x40,           // Step input (when SPI_SETP = 1), logic '1' advances one step (self-clearing).
   DRV8461_CTRL2_SPI_DIR = 0x20,        // Direction is controlled by SPI when high.
@@ -160,7 +265,8 @@ enum DRV8461_CTRL2_Reg_Val : uint8_t {
   DRV8461_CTRL2_MICROSTEP_MODE = 0x0F, // Micro-stepping mode (default is 0110b = 1/16 step).
 };
 
-enum DRV8461_Micostep_Mode : uint8_t
+//Specific Values for Microstepping
+enum class DRV8461_Micostep_Mode : uint8_t
 {
   DRV8461_MICROSTEP_1_100 = 0b0000,    // Full step (2-phase excitation) with 100% current.
   DRV8461_MICROSTEP_1_71  = 0b0001,    // Full step (2-phase excitation) with 71% current.
@@ -177,7 +283,7 @@ enum DRV8461_Micostep_Mode : uint8_t
 
 
 // CONTROL 3 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL3_Reg_Val : uint8_t {
+enum class DRV8461_CTRL3_Reg_Val : uint8_t {
   DRV8461_CTRL3_CLR_FLT = 0x80,        // Clear all latched fault bits (self-resetting) by writing 1.
   DRV8461_CTRL3_LOCK = 0x70,           // Lock registers and ignore further register writes except for CLR_FLT.
   DRV8461_CTRL3_TOCP = 0x08,           // Set overcurrent protection deglitch time (0 = 1.2 us, 1 = 2.2us) default 1.
@@ -188,7 +294,7 @@ enum DRV8461_CTRL3_Reg_Val : uint8_t {
 
 
 // CONTROL 4 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL4_Reg_Val : uint8_t {
+enum class DRV8461_CTRL4_Reg_Val : uint8_t {
   DRV8461_CTRL4_TBLANK_TIME = 0xC0,    // Controls current sense blanking time (default 1.5us).
   DRV8461_CTRL4_STL_LRN = 0x20,        // Automatic learning of stall detection threshold (set to 1, resets to 0).
   DRV8461_CTRL4_EN_STL = 0x10,         // Stall detection (1 = enabled) default 0.
@@ -197,8 +303,8 @@ enum DRV8461_CTRL4_Reg_Val : uint8_t {
   DRV8461_CTRL4_STEP_FRQ_TOL = 0x03,   // Programs the filter setting for STEP input. Default 2%.
 };
 
-
-enum DRV8461_Step_Frequency : uint8_t {
+//Specific Values for Step Frequencies
+enum class DRV8461_Step_Frequency : uint8_t {
   DRV8461_STEP_FRQ_FLTR_1 = 0b00,      // 1% filtering
   DRV8461_STEP_FRQ_FLTR_2 = 0b01,      // 2% filtering
   DRV8461_STEP_FRQ_FLTR_4 = 0b10,      // 4% filtering
@@ -207,13 +313,13 @@ enum DRV8461_Step_Frequency : uint8_t {
 
 
 // CONTROL 5 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL5_Reg_Val : uint8_t {
+enum class DRV8461_CTRL5_Reg_Val : uint8_t {
   DRV8461_CTRL5_STALL_TH = 0xFF,       // Lower 8-btis of stall threshold (default is 00000011b / 3).
 };
 
 
 // CONTROL 6 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL6_Reg_Val : uint8_t {
+enum class DRV8461_CTRL6_Reg_Val : uint8_t {
   DRV8461_CTRL6_RC_RIPPLE = 0xC0,      // Ripple setting (00b = 1%, 01b = 2%, 10b = 4%, 11b = 6%).
   DRV8461_CTRL6_EN_SSC    = 0x20,      // Enable spread-spectrum (on by default).
   DRV8461_CTRL6_TRQ_SCALE = 0x10,      // Apply 8x torque scaling (off by default).
@@ -221,7 +327,8 @@ enum DRV8461_CTRL6_Reg_Val : uint8_t {
 };
 
 
-enum DRV8461_RC_Ripple : uint8_t {
+//Specific Values for Ripple Percentage
+enum class DRV8461_RC_Ripple : uint8_t {
   DRV8461_RIPPLE_1 = 0b00,    // 1% ripple (default).
   DRV8461_RIPPLE_2 = 0b01,    // 2% ripple (default).
   DRV8461_RIPPLE_4 = 0b10,    // 4% ripple (default).
@@ -230,19 +337,19 @@ enum DRV8461_RC_Ripple : uint8_t {
 
 
 // CONTROL 7 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL7_Reg_Val : uint8_t {
+enum class DRV8461_CTRL7_Reg_Val : uint8_t {
   DRV8461_CTRL7_TRQ_COUNT = 0xFF,      // Lower 8-bits of TRQ_COUNT.
 };
 
 
 // CONTROL 8 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL8_Reg_Val : uint8_t {
+enum class DRV8461_CTRL8_Reg_Val : uint8_t {
   DRV8461_CTRL8_TRQ_SCALE = 0x0F,      // Upper 4-bits of TRQ_COUNT.
 };
 
 
 // CONTROL 9 REGISTER SETINGS ************************************************************************************// 
-enum DRV8461_CTRL9_Reg_Val : uint8_t {
+enum class DRV8461_CTRL9_Reg_Val : uint8_t {
   DRV8461_CTRL9_EN_OL     = 0x80,      // Enable open load detection.
   DRV8461_CTRL9_OL_MODE   = 0x40,      // Open-load fault clearing mode.
   DRV8461_CTRL9_OL_T      = 0x30,      // Controls the open load fault detection time. (Default = 60ms, max)
@@ -251,15 +358,15 @@ enum DRV8461_CTRL9_Reg_Val : uint8_t {
   DRV8461_CTRL9_EN_AUTO   = 0x01,      // Automatic microstepping (0 = disabled, 1 = enabled) default 0.
 };
 
-
-enum DRV8461_Open_Load_Detection_Time : uint8_t {
+//Specific Values for Open Load Detection Time
+enum class DRV8461_Open_Load_Detection_Time : uint8_t {
   DRV8461_OLT_30  = 0b00,              // 30ms
   DRV8461_OLT_60  = 0b01,              // 60ms
   DRV8461_OLT_120 = 0b10,              // 120ms
 };
 
-
-enum DRV8461_Auto_Microstep : uint8_t {
+//Specific Values for Automatic Microstepping
+enum class DRV8461_Auto_Microstep : uint8_t {
   DRV8461_MICRO_RES_256 = 0b00,        // 1/256
   DRV8461_MICRO_RES_128 = 0b01,        // 1/128
   DRV8461_MICRO_RES_64  = 0b10,        // 1/64
@@ -268,14 +375,12 @@ enum DRV8461_Auto_Microstep : uint8_t {
 
 
 // CONTROL 10 REGISTER SETINGS ***********************************************************************************// 
-
-
-enum DRV8461_CTRL10_Reg_Val : uint8_t {
+enum class DRV8461_CTRL10_Reg_Val : uint8_t {
   DRV8461_CTRL10_ISTSL = 0xFF,         // Determines the holding current
 };
 
-
-enum DRV8461_Holding_Current : uint8_t {
+//Specific Values for Holding Current
+enum class DRV8461_Holding_Current : uint8_t {
   DRV8461_ISTSL_256  = 0b11111111,      // 256/256 * 100
   DRV8461_ISTSL_255  = 0b11111110,      // 255/256 * 100
   DRV8461_ISTSL_254  = 0b11111101,      // 254/256 * 100
@@ -536,14 +641,12 @@ enum DRV8461_Holding_Current : uint8_t {
 
 
 // CONTROL 11 REGISTER SETINGS ***********************************************************************************// 
-
-
-enum DRV8461_CTRL11_Reg_Val : uint8_t {
+enum class DRV8461_CTRL11_Reg_Val : uint8_t {
   DRV8461_CTRL11_TRQ_DAC = 0xFF,     // Determines the run current.
 };
 
-
-enum DRV_Run_Current : uint8_t {
+//Specific Values for Run Current
+enum class DRV_Run_Current : uint8_t {
   DRV8461_TRQ_DAC_256  = 0b11111111,      // 256/256 * 100
   DRV8461_TRQ_DAC_255  = 0b11111110,      // 255/256 * 100
   DRV8461_TRQ_DAC_254  = 0b11111101,      // 254/256 * 100
@@ -803,15 +906,13 @@ enum DRV_Run_Current : uint8_t {
 };
 
 // CONTROL 12 REGISTER SETINGS ***********************************************************************************// 
-
-
-enum DRV8461_CTRL12_Reg_Val : uint8_t {
+enum class DRV8461_CTRL12_Reg_Val : uint8_t {
   DRV8461_CTRL12_EN_STSL    = 0x80,     // Standstill power saving mode. (0 = disabled) default 0.
   DRV8461_CTRL12_TSTSL_FALL = 0x78,     // Controls the time for current to reduce to ISTSL from TRQ_DAC after TSTSL_DLY elapsed
 };
 
-
-enum DRV8461_Current_Reduction_Time : uint8_t {
+//Specific Values for the time it takes for Current to Reduce
+enum class DRV8461_Current_Reduction_Time : uint8_t {
   DRV8461_TSTSL_FALL_15   = 0b1111,      // 15ms
   DRV8461_TSTSL_FALL_14   = 0b1110,      // 14ms
   DRV8461_TSTSL_FALL_13   = 0b1101,      // 13ms
@@ -831,15 +932,13 @@ enum DRV8461_Current_Reduction_Time : uint8_t {
 
 
 // CONTROL 13 REGISTER SETINGS ***********************************************************************************// 
-
-
-enum DRV8461_CTRL13_Reg_Val : uint8_t {
+enum class DRV8461_CTRL13_Reg_Val : uint8_t {
   DRV8461_CTRL13_TSTSL_DLY   = 0xFC,       // Controls the delay between last STEP and standstill activation.
   DRV8461_CTRL13_VREF_INT_EN = 0x02,       // When 1, uses 3.3V for current regulation, ignoring VREF. Default 0.
 };
 
-
-enum DRV8461_Delay_Until_Standstill : uint8_t {
+//Spefic Values for Delay Until Standstill
+enum class DRV8461_Delay_Until_Standstill : uint8_t {
   DRV8461_TSTSL_FALL_1008  = 0b111111,      // 1008ms
   DRV8461_TSTSL_FALL_992   = 0b111110,      // 992ms
   DRV8461_TSTSL_FALL_976   = 0b111101,      // 976ms
@@ -907,14 +1006,12 @@ enum DRV8461_Delay_Until_Standstill : uint8_t {
 
 
 // CONTROL 14 REGISTER SETINGS ***********************************************************************************// 
-
-
-enum DRV8461_CTRL14_Reg_Val : uint8_t {
+enum class DRV8461_CTRL14_Reg_Val : uint8_t {
   DRV8461_CTRL14_VM_ADC = 0xF8,       // Outputs the value of the supply voltage
 };
 
-
-enum DRV8461_Supply_Voltage : uint8_t {
+//Specificc Values for Supply Voltage
+enum class DRV8461_Supply_Voltage : uint8_t {
   DRV8461_VM_ADC_0  = 0b00000,         // Supply Voltage 0V
   DRV8461_VM_ADC_24 = 0b01011,         // Supply Voltage 24V
   DRV8461_VM_ADC_65 = 0b11111,         // Supply Voltage 65V
