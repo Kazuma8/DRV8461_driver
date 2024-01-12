@@ -189,6 +189,7 @@ enum class DRV8461_FAULT_Reg_Val : uint8_t {
 
 
 
+
 ///DIAG
 // DIAG STATUS 1 REGISTER SETINGS ************************************************************************************// 
 enum class DRV8461_DIAG1_Reg_Val : uint8_t {
@@ -1083,18 +1084,18 @@ public:
   /// they do not.
   bool verifySettings()
   {
-    return driver.readReg(DRV8461_REG_ADDR::CTRL1)  == ctrl1  &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL2)  == ctrl2  &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL3)  == ctrl3  &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL4)  == ctrl4  &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL5)  == ctrl5  &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL6)  == ctrl6  &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL9)  == ctrl9  &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL10) == ctrl10 &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL11) == ctrl11 &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL12) == ctrl12 &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL13) == ctrl13 &&
-           driver.readReg(DRV8461_REG_ADDR::CTRL14) == ctrl14;
+    return driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL1)  == ctrl1  &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL2)  == ctrl2  &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL3)  == ctrl3  &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL4)  == ctrl4  &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL5)  == ctrl5  &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL6)  == ctrl6  &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL9)  == ctrl9  &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL10) == ctrl10 &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL11) == ctrl11 &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL12) == ctrl12 &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL13) == ctrl13 &&
+           driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL14) == ctrl14;
   }
 
   /// Re-writes the cached settings stored in this class to the device.
@@ -1106,26 +1107,26 @@ public:
   /// back into the desired state.
   void applySettings()
   {
-    writeCachedReg(DRV8461_REG_ADDR::CTRL1);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL3);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL4);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL5);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL6);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL9);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL10);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL11);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL12);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL13);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL14);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL2);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL3);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL4);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL5);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL6);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL9);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL10);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL11);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL12);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL13);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL14);
 
-    // CTRL2 is written last because it contains the EN_OUT bit, and we want to
+    // CTRL1 is written last because it contains the EN_OUT bit, and we want to
     // try to have all the other settings correct first.
-    writeCachedReg(DRV8461_REG_ADDR::CTRL2);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL1);
   }
 
   /// Sets the driver's current scalar (TRQ_DAC), which scales the full current
   /// limit (as set by VREF) by the specified percentage. The available settings
-  /// are multiples of 6.25%.
+  /// are multiples of 0.390625%.
   ///
   /// This function takes an integer, and if the desired current limit is not
   /// available, it generally tries to pick the closest current limit that is
@@ -1149,12 +1150,12 @@ public:
   void setCurrentPercent(uint8_t percent)
   {
     if (percent > 100) { percent = 100; }
-    if (percent < 6) { percent = 6; }
+    if (percent < 1) { percent = 1; }
 
-    uint8_t td = ((uint16_t)percent * 4 + 3) / 25; // convert 6-100% to 1-16, rounding up by at most 0.75%
-    td = 16 - td;                                  // convert 1-16 to 15-0 (15 = 6.25%, 0 = 100%)
-    ctrl1 = (ctrl1 & 0b00001111) | (td << 4);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL1);
+    uint8_t td = ((uint16_t)percent * 64 / 25) - 1; // convert 0-100 to 0-255
+    if (td == 0) { td = 1; }                   // restrict to 1-16
+    ctrl11 = td;
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL11);
   }
 
   /// Sets the driver's current scalar (TRQ_DAC) to produce the specified scaled
@@ -1181,37 +1182,36 @@ public:
     if (fullCurrent > 4000) { fullCurrent = 4000; }
     if (current > fullCurrent) { current = fullCurrent; }
 
-    uint8_t td = (current * 16 / fullCurrent); // convert 0-fullCurrent to 0-16
+    uint8_t td = (current * 256 / fullCurrent); // convert 0-fullCurrent to 0-16
     if (td == 0) { td = 1; }                   // restrict to 1-16
-    td = 16 - td;                              // convert 1-16 to 15-0 (15 = 6.25%, 0 = 100%)
-    ctrl1 = (ctrl1 & 0b00001111) | (td << 4);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL1);
+    ctrl11 = td;
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL11);
   }
 
   /// Enables the driver (EN_OUT = 1).
   void enableDriver()
   {
-    ctrl2 |= (1 << 7);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL2);
+    ctrl1 |= (1 << 7);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL1);
   }
 
   /// Disables the driver (EN_OUT = 0).
   void disableDriver()
   {
-    ctrl2 &= ~(1 << 7);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL2);
+    ctrl1 &= ~(1 << 7);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL1);
   }
 
   /// Sets the driver's decay mode (DECAY).
   ///
   /// Example usage:
   /// ~~~{.cpp}
-  /// sd.setDecayMode(DRV8434SDecayMode::SmartTuneDynamicDecay);
+  /// sd.setDecayMode(DRV8434SDecayMode::DRV8461_DECAY_SLOW_SLOW);
   /// ~~~
-  void setDecayMode(DRV8434SDecayMode mode)
+  void setDecayMode(DRV8461_Decay_Mode mode)
   {
-    ctrl2 = (ctrl2 & 0b11111000) | ((uint8_t)mode & 0b111);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL2);
+    ctrl1 = (ctrl1 & 0b11111000) | ((uint8_t)mode & 0b111);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL1);
   }
 
   /// Sets the motor direction (DIR).
@@ -1226,13 +1226,13 @@ public:
   {
     if (value)
     {
-      ctrl3 |= (1 << 7);
+      ctrl2 |= (1 << 7);
     }
     else
     {
-      ctrl3 &= ~(1 << 7);
+      ctrl2 &= ~(1 << 7);
     }
-    writeCachedReg(DRV8461_REG_ADDR::CTRL3);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL2);
   }
 
   /// Returns the cached value of the motor direction (DIR).
@@ -1240,7 +1240,7 @@ public:
   /// This does not perform any SPI communication with the driver.
   bool getDirection()
   {
-    return (ctrl3 >> 7) & 1;
+    return (ctrl2 >> 7) & 1;
   }
 
   /// Advances the indexer by one step (STEP = 1).
@@ -1252,39 +1252,39 @@ public:
   /// The driver automatically clears the STEP bit after it is written.
   void step()
   {
-    driver.writeReg(DRV8461_REG_ADDR::CTRL3, ctrl3 | (1 << 6));
+    driver.writeReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL2, ctrl2 | (1 << 6));
   }
 
   /// Enables direction control through SPI (SPI_DIR = 1), allowing
   /// setDirection() to override the DIR pin.
   void enableSPIDirection()
   {
-    ctrl3 |= (1 << 5);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL3);
+    ctrl2 |= (1 << 5);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL2);
   }
 
   /// Disables direction control through SPI (SPI_DIR = 0), making the DIR pin
   /// control direction instead.
   void disableSPIDirection()
   {
-    ctrl3 &= ~(1 << 5);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL3);
+    ctrl2 &= ~(1 << 5);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL2);
   }
 
   /// Enables stepping through SPI (SPI_STEP = 1), allowing step() to override
   /// the STEP pin.
   void enableSPIStep()
   {
-    ctrl3 |= (1 << 4);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL3);
+    ctrl2 |= (1 << 4);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL2);
   }
 
   /// Disables stepping through SPI (SPI_STEP = 0), making the STEP pin control
   /// stepping instead.
   void disableSPIStep()
   {
-    ctrl3 &= ~(1 << 4);
-    writeCachedReg(DRV8461_REG_ADDR::CTRL3);
+    ctrl2 &= ~(1 << 4);
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL2);
   }
 
   /// Sets the driver's stepping mode (MICROSTEP_MODE).
@@ -1300,16 +1300,16 @@ public:
   /// ~~~{.cpp}
   /// sd.setStepMode(DRV8434SStepMode::MicroStep32);
   /// ~~~
-  void setStepMode(DRV8434SStepMode mode)
+  void setStepMode(DRV8461_Micostep_Mode mode)
   {
-    if (mode > DRV8434SStepMode::MicroStep256)
+    if (mode > DRV8461_Micostep_Mode::DRV8461_MICROSTEP_256)
     {
       // Invalid mode; pick 1/16 micro-step by default.
-      mode = DRV8434SStepMode::MicroStep16;
+      mode = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_16;
     }
 
-    ctrl3 = (ctrl3 & 0b11110000) | (uint8_t)mode;
-    writeCachedReg(DRV8461_REG_ADDR::CTRL3);
+    ctrl2 = (ctrl2 & 0b11110000) | (uint8_t)mode;
+    writeCachedReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL2);
   }
 
   /// Sets the driver's stepping mode (MICROSTEP_MODE).
@@ -1323,22 +1323,22 @@ public:
   /// ~~~
   void setStepMode(uint16_t mode)
   {
-    DRV8434SStepMode sm;
+    DRV8461_Micostep_Mode sm;
 
     switch (mode)
     {
-      case 1:   sm = DRV8434SStepMode::MicroStep1;   break;
-      case 2:   sm = DRV8434SStepMode::MicroStep2;   break;
-      case 4:   sm = DRV8434SStepMode::MicroStep4;   break;
-      case 8:   sm = DRV8434SStepMode::MicroStep8;   break;
-      case 16:  sm = DRV8434SStepMode::MicroStep16;  break;
-      case 32:  sm = DRV8434SStepMode::MicroStep32;  break;
-      case 64:  sm = DRV8434SStepMode::MicroStep64;  break;
-      case 128: sm = DRV8434SStepMode::MicroStep128; break;
-      case 256: sm = DRV8434SStepMode::MicroStep256; break;
+      case 1:   sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_1_71; break;
+      case 2:   sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_2;    break;
+      case 4:   sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_4;    break;
+      case 8:   sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_8;    break;
+      case 16:  sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_16;   break;
+      case 32:  sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_32;   break;
+      case 64:  sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_64;   break;
+      case 128: sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_128;  break;
+      case 256: sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_256;  break;
 
       // Invalid mode; pick 1/16 micro-step by default.
-      default:  sm = DRV8434SStepMode::MicroStep16;
+      default:  sm = DRV8461_Micostep_Mode::DRV8461_MICROSTEP_16;
     }
 
     setStepMode(sm);
@@ -1360,7 +1360,7 @@ public:
   /// ~~~
   uint8_t readFault()
   {
-    return driver.readReg(DRV8461_REG_ADDR::FAULT);
+    return driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_FAULT);
   }
 
   /// Reads the DIAG1 status register of the driver.
@@ -1371,7 +1371,7 @@ public:
   /// the #DRV8434SDiag1Bit enum to check individual bits.
   uint8_t readDiag1()
   {
-    return driver.readReg(DRV8461_REG_ADDR::DIAG1);
+    return driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_DIAG1);
   }
 
   /// Reads the DIAG2 status register of the driver.
@@ -1382,7 +1382,7 @@ public:
   /// the #DRV8434SDiag2Bit enum to check individual bits.
   uint8_t readDiag2()
   {
-    return driver.readReg(DRV8461_REG_ADDR::DIAG2);
+    return driver.readReg(DRV8461_REG_ADDR::DRV8461_REG_DIAG2);
   }
 
   /// Clears any fault conditions that are currently latched in the driver
@@ -1396,7 +1396,7 @@ public:
   /// The driver automatically clears the CLR_FLT bit after it is written.
   void clearFaults()
   {
-    driver.writeReg(DRV8461_REG_ADDR::CTRL4, ctrl4 | (1 << 7));
+    driver.writeReg(DRV8461_REG_ADDR::DRV8461_REG_CTRL3, ctrl3 | (1 << 7));
   }
 
   /// Gets the cached value of a register. If the given register address is not
@@ -1435,13 +1435,21 @@ protected:
   {
     switch (address)
     {
-      case DRV8461_REG_ADDR::CTRL1: return &ctrl1;
-      case DRV8461_REG_ADDR::CTRL2: return &ctrl2;
-      case DRV8461_REG_ADDR::CTRL3: return &ctrl3;
-      case DRV8461_REG_ADDR::CTRL4: return &ctrl4;
-      case DRV8461_REG_ADDR::CTRL5: return &ctrl5;
-      case DRV8461_REG_ADDR::CTRL6: return &ctrl6;
-      case DRV8461_REG_ADDR::CTRL7: return &ctrl7;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL1: return &ctrl1;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL2: return &ctrl2;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL3: return &ctrl3;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL4: return &ctrl4;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL5: return &ctrl5;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL6: return &ctrl6;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL7: return &ctrl7;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL8: return &ctrl8;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL9: return &ctrl9;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL10: return &ctrl10;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL11: return &ctrl11;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL12: return &ctrl12;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL13: return &ctrl13;
+      case DRV8461_REG_ADDR::DRV8461_REG_CTRL14: return &ctrl14;
+  
       default: return nullptr;
     }
   }
