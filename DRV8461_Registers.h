@@ -916,8 +916,8 @@ enum DRV8461_CTRL14_Reg_Val : uint8_t {
 
 enum DRV8461_Supply_Voltage : uint8_t {
   DRV8461_VM_ADC_0  = 0b00000,         // Supply Voltage 0V
-  DRV8461_VM_ADC_24 = 0b01011,         // 24V
-  DRV8461_VM_ADC_65 = 0b11111,         // 65V
+  DRV8461_VM_ADC_24 = 0b01011,         // Supply Voltage 24V
+  DRV8461_VM_ADC_65 = 0b11111,         // Supply Voltage 65V
 };
 
 
